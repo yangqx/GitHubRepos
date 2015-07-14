@@ -9,6 +9,7 @@ public class Call {
         
         /* Post Request */
         Map dataMap = new HashMap();
+        System.out.println("test");
         //dataMap.put("username", "Nick Huang");
         //dataMap.put("blog", "IT");
         System.out.println(new HttpRequestor().doPost("http://api.map.baidu.com/telematics/v3/weather?location=北京&output=xml&ak=inCL9vgx62A6mumKu6dn2dgR", dataMap));
