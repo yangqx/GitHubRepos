@@ -7,8 +7,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;                                                  
 
 import org.liufeng.course.message.resp.TextMessage;                                            
+import org.liufeng.course.message.resp.Weather;
 import org.liufeng.course.util.HttpRequestor;
 import org.liufeng.course.util.MessageUtil;                                                    
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
                                                                                                
 /**                                                                                            
 	 * 核心服务类                                                                                
@@ -16,7 +20,7 @@ import org.liufeng.course.util.MessageUtil;
 	 * @author liufeng                                                                           
 	 * @date 2013-05-20                                                                          
 	 */                                                                                          
-	public class CoreService {                                                                   
+	public class CoreService {                                                          
 	    /**                                                                                      
 	     * 处理微信发来的请求                                                                    
 	     *                                                                                       
@@ -49,37 +53,62 @@ import org.liufeng.course.util.MessageUtil;
 	                                                                                             
 	            // 文本消息                                                                      
 	            if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_TEXT)) { 
-	            	String content = "";
+	            	String content = requestMap.get("Content");
 	            	String city = "";
-	            	if(msgType.contains("天气")){
+	            	StringBuilder builder  =  new StringBuilder();
+	            	if(content.contains("天气")){
 	            		/* Post Request */
 	                    Map dataMap = new HashMap();
 	                    //dataMap.put("username", "Nick Huang");
 	                    //dataMap.put("blog", "IT");
-	                    if(msgType.contains("北京")){
-	                    	city = "北京";
-	                    }
-	                    if(msgType.contains("郑州")){
-	                    	city = "郑州";
-	                    }
-	                    if(msgType.contains("桐柏")){
-	                    	city = "桐柏";
-	                    }
-	                    if(msgType.contains("天津")){
-	                    	city = "天津";
-	                    }
-	                    String url = "http://api.map.baidu.com/telematics/v3/weather?location="+city+"&output=xml&ak=inCL9vgx62A6mumKu6dn2dgR";
+	                    city = content.replaceAll("天气", "");
+	                    String url = "http://api.map.baidu.com/telematics/v3/weather?location="+city+"&output=json&ak=inCL9vgx62A6mumKu6dn2dgR";
 	                    content = new HttpRequestor().doPost(url, dataMap);
+	                    Gson gson = new Gson();
+	                    Weather weather = gson.fromJson(content,
+	            				new TypeToken<Weather>() {
+	            				}.getType());
+	                    builder.append("城市 ： " + city)
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(0).getDate())
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(0).getTemperature())
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(0).getWeather())
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(0).getWind())
 	                    
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(1).getDate())
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(1).getTemperature())
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(1).getWeather())
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(1).getWind())
 	                    
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(2).getDate())
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(2).getTemperature())
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(2).getWeather())
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(2).getWind())
+	                    
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(3).getDate())
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(3).getTemperature())
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(3).getWeather())
+	                    .append("\n").append(weather.getResults().get(0).getWeather_data().get(3).getWind());
+	                    
+//	                    StringBuffer buffer = new StringBuffer();
+//	                    buffer.append("您好,我是小q,请回复数字选择服务:").append("\n\n");
+//	                    buffer.append("1 天气预报");
+//	                    buffer.append("2 公交查询").append("\n");
+//	                    buffer.append("3 周边搜索").append("\n");
+//	                    buffer.append("4 歌曲点播").append("\n");
+//	                    buffer.append("5 经典游戏").append("\n");
+//	                    buffer.append("6 美女电台").append("\n");
+//	                    buffer.append("7 人脸识别").append("\n");
+//	                    buffer.append("8 聊天唠嗑").append("\n\n");
+//	                    buffer.append("回复\"?\"显示此帮助菜单");
+//	                    return buffer.toString();
 	            	}
 	            	
 	            	if(true){
 	            		//Content
-	            		content = requestMap.get("Content");
-	            		
+	            		//content = requestMap.get("Content");
 	            	}
-	                respContent = "您发送的是文本消息！/n" +content;                                        
+	               //respContent = "您发送的是文本消息！" +add;                                        
+	            	respContent =  builder.toString();
 	            }                                                                                
 	            // 图片消息                                                                      
 	            else if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_IMAGE)) {  
@@ -87,7 +116,6 @@ import org.liufeng.course.util.MessageUtil;
 	            	if(true){
 	            		//Content
 	            		content = requestMap.get("Content");
-	            		
 	            	}
 	                respContent = "您发送的是图片消息！";                                        
 	            }                                                                                
